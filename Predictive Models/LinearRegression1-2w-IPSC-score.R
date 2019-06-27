@@ -1,11 +1,12 @@
 ##############################Score plots
     
-    
+graphics.off()    
+
     datapath = "/home/bic/rthomas/Desktop/Link to 12CellLinesPaper/output_June11/2weeksoutputRT/2weeks_combined_sampled.csv.csv"
-    datapath_test = "/home/bic/rthomas/Desktop/Link to 12CellLinesPaper/output_June11/2weeksoutputRT/2weeks_combined_subsample_sampled.csv.csv_sampled.csv.csv"
+    datapath_test = "/home/bic/rthomas/Desktop/Link to 12CellLinesPaper/output_June11/2weeksoutputRT/2weeks_combined_subsample.csv.csv"
     
     
-    Predictees <- c("Score")
+    Predictees <- c("Score", "Growth", "Viability", "Differentiation", "Attachment")
     features <- c("Dapi.intensity", 
                   "Dapi.area", 
                   "Dapi.area.fraction.in.nuclei",
@@ -16,8 +17,7 @@
                   "X.nuclei",
                   "too.small...75.",
                   "too.big...250.",
-                  "size.average",
-                  "Column")
+                  "size.average")
     
     # Set seed for reproducibility
     set.seed(42)
@@ -34,6 +34,8 @@
     library(caret)
     library(leaps)
     library(MASS)
+    library(cowplot)
+    library(gridExtra)
     
     ggplotRegression <- function (fit, index) {
       
@@ -47,6 +49,12 @@
     }
     
     
+    df$Score <- df[,"Score"] / 8
+    df$Growth <- df[,"Growth"] / 2.5
+    df$Viability <- df[,"Viability"] / 2.5
+    df$Differentiation <- df[,"Differentiation"] / 2.5
+    df$Attachment <- df[,"Attachment"] / 2.5
+    
     data_step <- df[,colSums(is.na(df))<nrow(df)]
     data_step <- data_step[rowSums(is.na(data_step)) == 0,]
 
@@ -55,25 +63,7 @@
     for (Predictee in Predictees) {
     
       variables = paste(Predictee, " ~ ",paste(features,collapse = "+"))
-        
-        paste(
-        Predictee,
-        
-        " ~  
-        Dapi.intensity + 
-        Dapi.area + 
-        Dapi.area.fraction.in.nuclei +
-        Ch1.positive + 
-        Ch1.intensity +
-        Ch1.area +
-        all.negative +
-        X.nuclei +
-        too.small...75. +
-        too.big...250. +
-        size.average
-        "
-        )
-  
+
       # Set up repeated k-fold cross-validation
       train.control <- trainControl(method = "cv", number = 10)
       # Train the model
@@ -93,8 +83,13 @@
       print(ggplot(step.model))
       
       
+      library(GGally)
+      print(ggcoef(lmodel, exclude_intercept = TRUE, errorbar_height = .2, color = "blue", sort = "ascending") + 
+        scale_x_continuous(breaks = c(-0.008, -0.007, -0.006, -0.005, -0.004, -0.003, -0.002, -0.001, 0, 0.001, 0.002, 0.003, 0.004, 0.005)))
+      
+      
       for (i in 1:step.model$bestTune$nvmax+1){
-        print(ggplotRegression(lmodel, i))  
+        #print(ggplotRegression(lmodel, i))  
       }
       
       
@@ -126,7 +121,13 @@
       
       df_test <- read.csv(datapath_test)
       
-      data_step_test <- df[,colSums(is.na(df))<nrow(df)]
+      df_test$Score <- df_test[,"Score"] / 8
+      df_test$Growth <- df_test[,"Growth"] / 2.5
+      df_test$Viability <- df_test[,"Viability"] / 2.5
+      df_test$Differentiation <- df_test[,"Differentiation"] / 2.5
+      df_test$Attachment <- df_test[,"Attachment"] / 2.5
+      
+      data_step_test <- df_test[,colSums(is.na(df))<nrow(df_test)]
       data_step_test <- data_step_test[rowSums(is.na(data_step)) == 0,]
       
       pred_test <- predict(lmodel, data_step_test)
@@ -134,27 +135,37 @@
       print(summary (lmodel))
       print(AIC (lmodel))
       
+      
+      
       actuals_preds_test <- data.frame(cbind(actuals=data_step_test[[Predictee]], predicteds=pred_test))  # make actuals_predicteds dataframe.
       correlation_accuracy <- cor(actuals_preds_test)  
       
       minmax_test <-  mean(apply(actuals_preds_test, 1, min) / apply(actuals_preds_test, 1, max))  #min_max accuracy
       mape_test <- mean(abs((actuals_preds_test$predicteds - actuals_preds_test$actuals))/actuals_preds_test$actuals)  #mean absolute percent deviation
-  
-      print (ggplot(actuals_preds_test, aes_string(x= "actuals", y = "predicteds")) +
+      
+      errors <- postResample(pred = pred_test, obs = actuals_preds_test$actuals)
+      
+      groups <- as.factor(actuals_preds_test$actuals)
+      
+      p <- ggplot(actuals_preds_test, aes_string(x = "actuals", y = "predicteds")) +
               geom_point() +
               geom_smooth(method = lm) +
-              labs(title = paste(Predictee, "           ", "Min-Max Accuracy: ",minmax_test, "       " ,
-                                   "Mean Absolute Percentage Error: ",mape_test))
+              labs(title = paste("2 Weeks Cell Line", Predictee, "prediction")) + 
+              geom_line(data = data.frame(x = c(0,1), y = c(0,1)),
+                    aes(x = x, y = y), colour = "red")
+      
+      tab <- as.data.frame(errors
       )
       
-      hist(actuals_preds_test$predicteds, 100)
+      p_tab <- tableGrob(unname(tab))
+      
+      print(ggdraw() +
+          draw_plot(p, width = 1) +
+          draw_plot(p_tab, x = 0.1, y = 0.175, width = 0.4))
       
     }
     
     
-    data_step$Grade <- data_step$Ch1.intensity / data_step$Dapi.intensity
-    
-    postResample(pred = pred_test, obs = actuals_preds_test$actuals)
-    
-          
+
+        
     

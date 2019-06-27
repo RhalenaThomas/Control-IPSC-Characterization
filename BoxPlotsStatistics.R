@@ -1,10 +1,14 @@
 ##############################Score plots
 
+graphics.off()   
 
 data4weeks = read.csv("/export03/data/12CellLinesPaper/output_June11/4weeksoutputRT/4weeks_combined.csv")
 data2weeks = read.csv("/export03/data/12CellLinesPaper/output_June11/2weeksoutputRT/2weeks_combined.csv")
 dataCNPC = read.csv("/export03/data/12CellLinesPaper/output_June11/outputCNPC/CNPC_combined.csv")
-setwd("/export03/data/12CellLinesPaper/boxplots_output")
+
+markerDirectory = "/export03/data/12CellLinesPaper/boxplots_output/markers"
+nucleiDirectory = "/export03/data/12CellLinesPaper/boxplots_output/nuclei"
+allDirectory = "/export03/data/12CellLinesPaper/boxplots_output/all_time_course"
 
 colours = c(  "#b1457b",
               "#54b06c",
@@ -18,6 +22,12 @@ colours = c(  "#b1457b",
               "#36dee6",
               "#b86738",
               "#6a89d5")
+
+nucleifeatures <- c("Dapi.positive", "Dapi.intensity", "size.average", "too.big...250.", "too.small...75.")
+
+allfeatures <- c("Dapi.positive", "size.average", "too.big...250.", "too.small...75.")
+
+channelfeatures <- c(".positive", ".positive_per_Dapi_nuclei", ".intensity", ".intensity_per_Dapi_intensity")
 
 
 
@@ -48,24 +58,22 @@ for (j in seq_along(listdfs)) { # loop over sequence
   
   dataframe$Lines <- as.factor(dataframe$Column)
   
-  channelfeatures <- c("ZZZ.positive", "ZZZ.intensity", "ZZZ.positive_per_Dapi_nuclei", "ZZZ.intensity_per_Dapi_intensity")
-  
   print("")  
   print(paste("dataframe: ", j))
   
-  outliers = 0
+  nones = 0
   
   for (x in 1:length(dataframe[,"X.nuclei"])){
     if (!is.na(dataframe[x,"X.nuclei"])){
       if (as.numeric(dataframe[x,"X.nuclei"]) < 5){
         dataframe[x,"X.nuclei"] = NaN
-        outliers = outliers + 1
+        nones = nones + 1
       }               
     }
     
   }
   
-  print(paste("number of less than 5 nuclei removed: ", outliers))
+  print(paste("number of less than 5 nuclei removed: ", nones))
   
   #hist(dataframe$X.nuclei,2000, xlim=c(0, 25))
   
@@ -76,6 +84,9 @@ for (j in seq_along(listdfs)) { # loop over sequence
     dataframe[,paste(channel,".positive_per_Dapi_nuclei", sep = "")] <- dataframe[,paste(channel, ".positive", sep = "")] / dataframe[,"Dapi.positive"]
     
     for (k in unique(dataframe[,channel])){
+      
+      
+      
       data_input <- dataframe[dataframe[, channel] == k,]
     
       plots <- list()
@@ -83,7 +94,7 @@ for (j in seq_along(listdfs)) { # loop over sequence
       
       for (i in channelfeatures){
   
-        i <- gsub("ZZZ", channel, i)
+        i <- paste(channel, i, sep= "")
         
         #outliers = 0
         #m = mean(as.numeric(data_input[,i]), na.rm = TRUE)
@@ -114,29 +125,122 @@ for (j in seq_along(listdfs)) { # loop over sequence
         b = ggplot(data_input, aes_string(x="Lines", y=i)) +
                 geom_boxplot(outlier.colour="black", outlier.shape=16, outlier.size=2, notch=FALSE, aes(fill = Lines))+
                 ggtitle(paste(dataframe[1, "Time"], " ", k, " ", i)) + 
-                scale_fill_manual(values = colours) 
+                scale_fill_manual(values = colours) +
                 theme(legend.position="none")
         plots[[i]] <- b
         
         b2 = ggplot(data_input, aes_string(x="Lines", y=i)) +
           geom_boxplot(outlier.colour="black", outlier.shape=16, outlier.size=2, notch=FALSE, aes(fill = Directory))+
           ggtitle(paste(dataframe[1, "Time"], " ", k, " ", i)) + 
-          scale_fill_manual(values = colours) 
-        theme(legend.position="none")
+          scale_fill_manual(values = colours) +
+          theme(legend.position= "top")
+        
         plots2[[i]] <- b2
         
       }
       
-      p = plot_grid(plots[[1]],plots[[2]],plots[[3]],plots[[4]], labels = "AUTO")
+      p = plot_grid(plots[[1]],plots[[2]],plots2[[1]],plots2[[2]], labels = "AUTO")
       
-      p2 = plot_grid(plots2[[1]],plots2[[2]],plots2[[3]],plots2[[4]], labels = "AUTO")
+      p2 = plot_grid(plots[[3]],plots[[4]],plots2[[3]],plots2[[4]], labels = "AUTO")
       
-      
-      save_plot(paste(sep = "", dataframe[1, "Time"], " ", k, ".png") , p, base_height = 20, base_width = 40)
-      save_plot(paste(sep = "", dataframe[1, "Time"], " ", k, "_split.png"), p2,  base_height = 20, base_width = 40)
+      setwd(markerDirectory)
+      save_plot(paste(sep = "", dataframe[1, "Time"], " ", k, "positive", ".png") , p, base_height = 10, base_width = 20)
+      save_plot(paste(sep = "", dataframe[1, "Time"], " ", k, "intensity", ".png"), p2,  base_height = 10, base_width = 20)
       
     }
   }
+
+  for (i in nucleifeatures) {
+    
+    
+    print(paste("Removed ", outliers, " outliers"))
+    
+      dataframe[,paste(i, "per_Dapi_nuclei", sep = "_")] <- dataframe[,i] / dataframe[,"X.nuclei"]
+      
+      b = ggplot(dataframe, aes_string(x="Lines", y=i)) +
+        geom_boxplot(outlier.colour="black", outlier.shape=16, outlier.size=2, notch=FALSE, aes(fill = Lines))+
+        ggtitle(paste(dataframe[1, "Time"], " ", i)) + 
+        scale_fill_manual(values = colours) +
+        theme(legend.position="none")
+      
+      b2 = ggplot(dataframe, aes_string(x="Lines", y=paste(i, "per_Dapi_nuclei", sep = "_"))) +
+        geom_boxplot(outlier.colour="black", outlier.shape=16, outlier.size=2, notch=FALSE, aes(fill = Lines))+
+        ggtitle(paste(dataframe[1, "Time"], " ", i, "per_Dapi_nuclei")) + 
+        scale_fill_manual(values = colours) +
+        theme(legend.position="none") 
+      
+      b3 = ggplot(dataframe, aes_string(x="Lines", y=i)) +
+        geom_boxplot(outlier.colour="black", outlier.shape=16, outlier.size=2, notch=FALSE, aes(fill = Directory))+
+        ggtitle(paste(dataframe[1, "Time"], " ", i)) + 
+        scale_fill_manual(values = colours)  +
+        theme(legend.position= "top")
+  
+      b4 = ggplot(dataframe, aes_string(x="Lines", y=paste(i, "per_Dapi_nuclei", sep = "_"))) +
+        geom_boxplot(outlier.colour="black", outlier.shape=16, outlier.size=2, notch=FALSE, aes(fill = Directory))+
+        ggtitle(paste(dataframe[1, "Time"], " ", i,  "per_Dapi_nuclei")) + 
+        scale_fill_manual(values = colours) 
+      
+      p = plot_grid(b, b2, b3, b4, labels = "AUTO")
+      
+      setwd(nucleiDirectory)
+      save_plot(paste(sep = "", dataframe[1, "Time"], " ", i, ".png") , p, base_height = 10, base_width = 20)
+    
+    }
+  
+  
+}
+
+dataframe <- rbind(rbind(data4weeks, data2weeks), dataCNPC)
+dataframe$Lines <- as.factor(dataframe$Column)
+
+
+nones = 0
+
+for (x in 1:length(dataframe[,"X.nuclei"])){
+  if (!is.na(dataframe[x,"X.nuclei"])){
+    if (as.numeric(dataframe[x,"X.nuclei"]) < 5){
+      dataframe[x,"X.nuclei"] = NaN
+      nones = nones + 1
+    }               
+  }
+  
+}
+
+print(paste("number of less than 5 nuclei removed: ", nones))
+
+
+for (i in allfeatures) {
+  
+  dataframe[,paste(i, "per_Dapi_nuclei", sep = "_")] <- dataframe[,i] / dataframe[,"X.nuclei"]
+  
+  b = ggplot(dataframe, aes_string(x="Lines", y=i)) +
+    geom_boxplot(outlier.colour="black", outlier.shape=16, outlier.size=2, notch=FALSE, aes(fill = Lines))+
+    ggtitle(paste( " ", i)) + 
+    scale_fill_manual(values = colours) +
+    theme(legend.position="none")
+  
+  b2 = ggplot(dataframe, aes_string(x="Lines", y=paste(i, "per_Dapi_nuclei", sep = "_"))) +
+    geom_boxplot(outlier.colour="black", outlier.shape=16, outlier.size=2, notch=FALSE, aes(fill = Lines))+
+    ggtitle(paste( " ", i, "per_Dapi_nuclei")) + 
+    scale_fill_manual(values = colours) +
+    theme(legend.position="none")
+  
+  b3 = ggplot(dataframe, aes_string(x="Lines", y=i)) +
+    geom_boxplot(outlier.colour="black", outlier.shape=16, outlier.size=2, notch=FALSE, aes(fill = Directory))+
+    ggtitle(paste( " ", i)) + 
+    scale_fill_manual(values = colours)+
+    theme(legend.position= "top")
+  
+  b4 = ggplot(dataframe, aes_string(x="Lines", y=paste(i, "per_Dapi_nuclei", sep = "_"))) +
+    geom_boxplot(outlier.colour="black", outlier.shape=16, outlier.size=2, notch=FALSE, aes(fill = Directory))+
+    ggtitle(paste( " ", i,  "per_Dapi_nuclei")) + 
+    scale_fill_manual(values = colours) +
+    theme(legend.position= "top") 
+  
+  p = plot_grid(b, b2, b3, b4, labels = "AUTO")
+  
+  setwd(allDirectory)
+  save_plot(paste(sep = "","all", i, ".png") , p, base_height = 10, base_width = 20)
   
 }
 
