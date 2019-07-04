@@ -6,9 +6,9 @@ data4weeks = read.csv("/export03/data/12CellLinesPaper/output_June11/4weeksoutpu
 data2weeks = read.csv("/export03/data/12CellLinesPaper/output_June11/2weeksoutputRT/2weeks_combined.csv")
 dataCNPC = read.csv("/export03/data/12CellLinesPaper/output_June11/outputCNPC/CNPC_combined.csv")
 
-markerDirectory = "/export03/data/12CellLinesPaper/boxplots_output/markers"
-nucleiDirectory = "/export03/data/12CellLinesPaper/boxplots_output/nuclei"
-allDirectory = "/export03/data/12CellLinesPaper/boxplots_output/all_time_course"
+markerDirectory = "/export03/data/12CellLinesPaper/boxplots_output2/markers"
+nucleiDirectory = "/export03/data/12CellLinesPaper/boxplots_output2/nuclei"
+allDirectory = "/export03/data/12CellLinesPaper/boxplots_output2/all_time_course"
 
 colours = c(  "#b1457b",
               "#54b06c",
@@ -47,6 +47,20 @@ library(cowplot)
 data4weeks$Time <-rep("4w",nrow(data4weeks))
 data2weeks$Time <-rep("2w",nrow(data2weeks))
 dataCNPC$Time <-rep("NPC",nrow(dataCNPC))
+
+data4weeks$Well <- paste(data4weeks$Row, data4weeks$Column, data4weeks$Directory) 
+data2weeks$Well <- paste(data2weeks$Row, data2weeks$Column, data4weeks$Directory) 
+dataCNPC$Well <- paste(dataCNPC$Row, dataCNPC$Column, data4weeks$Directory) 
+
+mean2 = function(x) {
+  if (is.numeric(x[1]))
+    return(mean(x))
+  return(x[1])
+}
+
+data4weeks <- aggregate(data4weeks, by = list(data4weeks$Well), mean2)
+data2weeks <- aggregate(data2weeks, by = list(data2weeks$Well), mean2)
+dataCNPC <- aggregate(dataCNPC, by = list(dataCNPC$Well), mean2)
 
 listdfs = list(data4weeks, data2weeks, dataCNPC)
 
@@ -88,12 +102,12 @@ for (j in seq_along(listdfs)) { # loop over sequence
       
       
       data_input <- dataframe[dataframe[, channel] == k,]
-    
+      
       plots <- list()
       plots2 <- list()
       
       for (i in channelfeatures){
-  
+        
         i <- paste(channel, i, sep= "")
         
         #outliers = 0
@@ -109,24 +123,24 @@ for (j in seq_along(listdfs)) { # loop over sequence
         #  
         #}
         
-      
+        
         #print(paste(k, " ", i, " number of outliers: ", outliers))
         
         print(paste(dataframe[1, "Time"], " ", k, " ", i))  
-      
+        
         #jpeg(paste(sampleName, i, "plots.jpg"), units="in", width = 10, height = 10, res=300 )
-          
+        
         #p = ggplot(data_input, aes_string(x= "X.nuclei", y = i, color = "Lines")) +
         #  geom_point() +
         #  theme(legend.position="left") 
         
         #print(ggMarginal(p, type="density", groupColour = TRUE))
-          
+        
         b = ggplot(data_input, aes_string(x="Lines", y=i)) +
-                geom_boxplot(outlier.colour="black", outlier.shape=16, outlier.size=2, notch=FALSE, aes(fill = Lines))+
-                ggtitle(paste(dataframe[1, "Time"], " ", k, " ", i)) + 
-                scale_fill_manual(values = colours) +
-                theme(legend.position="none")
+          geom_boxplot(outlier.colour="black", outlier.shape=16, outlier.size=2, notch=FALSE, aes(fill = Lines))+
+          ggtitle(paste(dataframe[1, "Time"], " ", k, " ", i)) + 
+          scale_fill_manual(values = colours) +
+          theme(legend.position="none")
         plots[[i]] <- b
         
         b2 = ggplot(data_input, aes_string(x="Lines", y=i)) +
@@ -149,43 +163,43 @@ for (j in seq_along(listdfs)) { # loop over sequence
       
     }
   }
-
+  
   for (i in nucleifeatures) {
     
     
     #print(paste("Removed ", outliers, " outliers"))
     
-      dataframe[,paste(i, "per_Dapi_nuclei", sep = "_")] <- dataframe[,i] / dataframe[,"X.nuclei"]
-      
-      b = ggplot(dataframe, aes_string(x="Lines", y=i)) +
-        geom_boxplot(outlier.colour="black", outlier.shape=16, outlier.size=2, notch=FALSE, aes(fill = Lines))+
-        ggtitle(paste(dataframe[1, "Time"], " ", i)) + 
-        scale_fill_manual(values = colours) +
-        theme(legend.position="none")
-      
-      b2 = ggplot(dataframe, aes_string(x="Lines", y=paste(i, "per_Dapi_nuclei", sep = "_"))) +
-        geom_boxplot(outlier.colour="black", outlier.shape=16, outlier.size=2, notch=FALSE, aes(fill = Lines))+
-        ggtitle(paste(dataframe[1, "Time"], " ", i, "per_Dapi_nuclei")) + 
-        scale_fill_manual(values = colours) +
-        theme(legend.position="none") 
-      
-      b3 = ggplot(dataframe, aes_string(x="Lines", y=i)) +
-        geom_boxplot(outlier.colour="black", outlier.shape=16, outlier.size=2, notch=FALSE, aes(fill = Directory))+
-        ggtitle(paste(dataframe[1, "Time"], " ", i)) + 
-        scale_fill_manual(values = colours)  +
-        theme(legend.position= "top")
-  
-      b4 = ggplot(dataframe, aes_string(x="Lines", y=paste(i, "per_Dapi_nuclei", sep = "_"))) +
-        geom_boxplot(outlier.colour="black", outlier.shape=16, outlier.size=2, notch=FALSE, aes(fill = Directory))+
-        ggtitle(paste(dataframe[1, "Time"], " ", i,  "per_Dapi_nuclei")) + 
-        scale_fill_manual(values = colours) 
-      
-      p = plot_grid(b, b2, b3, b4, labels = "AUTO")
-      
-      setwd(nucleiDirectory)
-      save_plot(paste(sep = "", dataframe[1, "Time"], " ", i, ".png") , p, base_height = 10, base_width = 20)
+    dataframe[,paste(i, "per_Dapi_nuclei", sep = "_")] <- dataframe[,i] / dataframe[,"X.nuclei"]
     
-    }
+    b = ggplot(dataframe, aes_string(x="Lines", y=i)) +
+      geom_boxplot(outlier.colour="black", outlier.shape=16, outlier.size=2, notch=FALSE, aes(fill = Lines))+
+      ggtitle(paste(dataframe[1, "Time"], " ", i)) + 
+      scale_fill_manual(values = colours) +
+      theme(legend.position="none")
+    
+    b2 = ggplot(dataframe, aes_string(x="Lines", y=paste(i, "per_Dapi_nuclei", sep = "_"))) +
+      geom_boxplot(outlier.colour="black", outlier.shape=16, outlier.size=2, notch=FALSE, aes(fill = Lines))+
+      ggtitle(paste(dataframe[1, "Time"], " ", i, "per_Dapi_nuclei")) + 
+      scale_fill_manual(values = colours) +
+      theme(legend.position="none") 
+    
+    b3 = ggplot(dataframe, aes_string(x="Lines", y=i)) +
+      geom_boxplot(outlier.colour="black", outlier.shape=16, outlier.size=2, notch=FALSE, aes(fill = Directory))+
+      ggtitle(paste(dataframe[1, "Time"], " ", i)) + 
+      scale_fill_manual(values = colours)  +
+      theme(legend.position= "top")
+    
+    b4 = ggplot(dataframe, aes_string(x="Lines", y=paste(i, "per_Dapi_nuclei", sep = "_"))) +
+      geom_boxplot(outlier.colour="black", outlier.shape=16, outlier.size=2, notch=FALSE, aes(fill = Directory))+
+      ggtitle(paste(dataframe[1, "Time"], " ", i,  "per_Dapi_nuclei")) + 
+      scale_fill_manual(values = colours) 
+    
+    p = plot_grid(b, b2, b3, b4, labels = "AUTO")
+    
+    setwd(nucleiDirectory)
+    save_plot(paste(sep = "", dataframe[1, "Time"], " ", i, ".png") , p, base_height = 10, base_width = 20)
+    
+  }
   
   
 }
@@ -265,8 +279,8 @@ for (i in allfeatures) {
     scale_fill_manual(values = colours)+
     theme(legend.position= "top") +
     facet_grid(. ~ Lines)
-
-    
+  
+  
   p = plot_grid(b,b3,labels = "AUTO", ncol = 1, align = 'v')
   
   setwd(allDirectory)
