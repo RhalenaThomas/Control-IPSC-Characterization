@@ -13,13 +13,16 @@ dataCNPC$Time <-rep("NPC",nrow(dataCNPC))
 df <- rbind(rbind(data4weeks, data2weeks), dataCNPC)
 
 
-Predictees <- c("Directory")
+var_list <- c("Directory","Lines","Time")   # directory is going to tell use the media and passage
 features <- c("Ch1.positive",
               "Ch1.positive_per_nuclei",
               "Ch1.intensity",
               "Dapi.positive",
-              "Dapi.intensity"
-
+              "Dapi.intensity",
+              "too.big...250._per_nuclei",
+              "size.average",
+              "too.small...75._per_nuclei"
+              
 )
 
 # Set seed for reproducibility
@@ -51,13 +54,7 @@ mean2 = function(x) {
 
 df <- aggregate(df, by = list(df$Well), mean2)
 
-df$Score <- df[,"Score"] / 8
-df$Growth <- df[,"Growth"] / 2.5
-df$Viability <- df[,"Viability"] / 2.5
-df$Differentiation <- df[,"Differentiation"] / 2.5
-df$Attachment <- df[,"Attachment"] / 2.5
 
-df$Good <- factor(df[,"Score"] > 0.55)
 
 df$Lines <- factor(df$Column)
 
@@ -65,28 +62,34 @@ data <- df[,colSums(is.na(df))<nrow(df)]
 data <- data[rowSums(is.na(data)) == 0,]
 
 
-for (Predictee in Predictees) {
-  for (Predictee2 in Predictees){
+for (var1 in var_list) {
+  for (var2 in var_list){
     for (Feature in features) {
       
       
       
-      variables = paste(Feature, " ~ ", Predictee, " * ", Predictee2)
+      variables = paste(Feature, " ~ ", var1, " * ", var2)
       
       print(variables)
       
       res.aov <- aov(as.formula(variables), data = data)
       # Summary of the analysis
       print(summary(res.aov))
+      write.csv(as.matrix(res.aov), file = "ANOVA", na = "")
+      
       
       tuk<- TukeyHSD(res.aov)
       print(tuk)
       print(plot(tuk))
       
+      p <- ggplot(data, aes_string(x = var1, y = Feature, fill= var2)) +
+        geom_boxplot()
+      print(p) 
+      
+      
     }    
   }
-
+  
   
 }
-
 

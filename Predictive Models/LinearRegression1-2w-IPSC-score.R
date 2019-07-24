@@ -6,8 +6,8 @@ datapath = "/home/bic/rthomas/Desktop/Link to 12CellLinesPaper/output_June11/4we
 datapath_test = "/home/bic/rthomas/Desktop/Link to 12CellLinesPaper/output_June11/4weeksoutputRT/4weeks_combined_subsample.csv.csv"
 
 
-Predictees <- c("Score")
-features <- c("Dapi.intensity", 
+Predictees <- c("Dapi.intensity")
+features <- c("Score", 
               "Dapi.area", 
               "Dapi.area.fraction.in.nuclei",
               "Ch1.positive",
@@ -35,7 +35,6 @@ library(leaps)
 library(MASS)
 library(relaimpo)
 library(GGally)
-library(plotly)
 
 ggplotRegression <- function (fit, index) {
   
@@ -94,22 +93,10 @@ for (Predictee in Predictees) {
   
   
   
-  print(
-    ggplot(data_step, aes_string(x = "Dapi.intensity", y = "Dapi.area"))
-    + geom_point()
-    + geom_smooth(method='lm')
-    )
-  
-
-
-  p <- plot_ly(data_step, x = ~Score, y = ~Dapi.intensity, z = ~Ch1.intensity, size = 5, color = ~Column) %>%
-    add_markers() 
-  
-  p
   
   
   for (i in 1:step.model$bestTune$nvmax+1){
-    print(ggplotRegression(lmodel, i))  
+    #print(ggplotRegression(lmodel, i))  
   }
   
   
