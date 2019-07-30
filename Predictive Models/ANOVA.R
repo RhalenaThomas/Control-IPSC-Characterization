@@ -2,9 +2,9 @@
 
 #graphics.off()    
 
-data4weeks = read.csv("/export03/data/12CellLinesPaper/output_June11/4weeksoutputRT/4weeks_combined.csv")
-data2weeks = read.csv("/export03/data/12CellLinesPaper/output_June11/2weeksoutputRT/2weeks_combined.csv")
-dataCNPC = read.csv("/export03/data/12CellLinesPaper/output_June11/outputCNPC/CNPC_combined.csv")
+data4weeks = read.csv("C:/Users/eddie/Documents/Control-IPSC-Characterization/data/4weeks_combined.csv")
+data2weeks = read.csv("C:/Users/eddie/Documents/Control-IPSC-Characterization/data/2weeks_combined.csv")
+dataCNPC = read.csv("C:/Users/eddie/Documents/Control-IPSC-Characterization/data/CNPC_combined.csv")
 
 data4weeks$Time <-rep("4w",nrow(data4weeks))
 data2weeks$Time <-rep("2w",nrow(data2weeks))
@@ -40,7 +40,7 @@ library(MASS)
 library(relaimpo)
 library(GGally)
 library(scales)
-
+library(agricolae)
 
 
 
@@ -64,32 +64,29 @@ data <- data[rowSums(is.na(data)) == 0,]
 
 for (var1 in var_list) {
   for (var2 in var_list){
-    for (Feature in features) {
-      
-      
-      
-      variables = paste(Feature, " ~ ", var1, " * ", var2)
-      
-      print(variables)
-      
-      res.aov <- aov(as.formula(variables), data = data)
-      # Summary of the analysis
-      print(summary(res.aov))
-      write.csv(as.matrix(res.aov), file = "ANOVA", na = "")
-      
-      
-      tuk<- TukeyHSD(res.aov)
-      print(tuk)
-      print(plot(tuk))
-      
-      p <- ggplot(data, aes_string(x = var1, y = Feature, fill= var2)) +
-        geom_boxplot()
-      print(p) 
-      
-      
-    }    
+    if (var1!= var2){
+      for (Feature in features) {
+        
+        
+        variables = paste(Feature, " ~ ", var1, " * ", var2)
+        
+        print(variables)
+        
+        res.aov <- aov(as.formula(variables), data = data)
+        # Summary of the analysis
+        print(summary(res.aov))
+        write.csv(as.matrix(res.aov), file = "ANOVA", na = "")
+        
+        p <- ggplot(data, aes_string(x = var1, y = Feature, fill= var2)) +
+          geom_boxplot()
+        print(p) 
+      }     
+    }
   }
   
+  datatemp <- data[data[,var1]==val,]
   
 }
+
+
 
