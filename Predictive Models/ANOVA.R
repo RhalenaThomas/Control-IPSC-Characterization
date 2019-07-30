@@ -84,8 +84,29 @@ for (var1 in var_list) {
     }
   }
   
-  datatemp <- data[data[,var1]==val,]
-  
+  for (val in unique(data[,var1])){
+    
+    datatemp <- data[data[,var1]==val,]
+    
+    for (var2 in var_list){
+      if (var1!= var2){
+        for (Feature in features) {
+          
+          
+          variables = paste(Feature, " ~ ", var2)
+          print(val)
+          print(variables)
+          res.aov <- aov(as.formula(variables), data = datatemp)    
+          print(summary(res.aov))
+          write.csv(as.matrix(res.aov), file = "ANOVA", na = "")
+          print(TukeyHSD(res.aov))
+          p <- ggplot(datatemp, aes_string(x = var1, y = Feature, fill= var2)) +
+            geom_boxplot()
+          print(p)     
+        }
+      }
+    }
+  }
 }
 
 
