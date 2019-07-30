@@ -16,14 +16,10 @@ df <- rbind(rbind(data4weeks, data2weeks), dataCNPC)
 var1_list <- c("Lines")   
 var2_list <- c("Directory", "Media")
 
-features <- c("Ch1.positive",
+features <- c(
               "Ch1.positive_per_nuclei",
-              "Ch1.intensity",
               "Dapi.positive",
-              "Dapi.intensity",
-              "too.big...250._per_nuclei",
-              "size.average",
-              "too.small...75._per_nuclei"
+              "size.average"
               
 )
 
@@ -67,7 +63,7 @@ for (var1 in var1_list) {
           print(variables)
           if (length(unique(datatemp[,var2])) > 1) {
             res.aov <- aov(as.formula(variables), data = datatemp)    
-            print(summary(res.aov))
+            #print(summary(res.aov))
             write.csv(as.matrix(res.aov), file = "ANOVA", na = "")
             print(TukeyHSD(res.aov))
             p <- ggplot(datatemp, aes_string(x = var1, y = Feature, fill= var2)) +
