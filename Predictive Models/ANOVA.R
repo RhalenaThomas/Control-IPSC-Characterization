@@ -1,5 +1,7 @@
 ##############################Score plots
 
+sink("C:/Users/eddie/Documents/sink.csv")
+
 #graphics.off()    
 
 data4weeks = read.csv("C:/Users/eddie/Documents/Control-IPSC-Characterization/data/4weeks_combined.csv")
@@ -15,7 +17,6 @@ df <- rbind(rbind(data4weeks, data2weeks), dataCNPC)
 
 var1_list <- c("Lines")   
 var2_list <- c("Directory", "Media")
-
 features <- c(
               "Ch1.positive_per_nuclei",
               "Dapi.positive",
