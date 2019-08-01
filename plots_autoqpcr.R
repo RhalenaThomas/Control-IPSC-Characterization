@@ -32,6 +32,33 @@ colours2 = c("#bbbbbb",
              "#b86738",
              "#6a89d5")
 
+grid_arrange_shared_legend <- function(..., nrow = 1, ncol = length(list(...)), position = c("bottom", "right")) {
+  
+  plots <- list(...)
+  position <- match.arg(position)
+  g <- ggplotGrob(plots[[1]] + theme(legend.position = position))$grobs
+  legend <- g[[which(sapply(g, function(x) x$name) == "guide-box")]]
+  lheight <- sum(legend$height)*1
+  lwidth <- sum(legend$width)*1
+  gl <- lapply(plots, function(x) x + theme(legend.position = "none"))
+  gl <- c(gl, nrow = nrow, ncol = ncol)
+  
+  combined <- switch(position,
+                     "bottom" = arrangeGrob(do.call(arrangeGrob, gl),
+                                            legend,
+                                            ncol = 1,
+                                            heights = unit.c(unit(1, "npc") - lheight, lheight)),
+                     "right" = arrangeGrob(do.call(arrangeGrob, gl),
+                                           legend,
+                                           ncol = 2,
+                                           widths = unit.c(unit(1, "npc") - lwidth, lwidth)))
+  grid.newpage()
+  return(combined)
+  
+}
+
+
+
 #make sure there is rel in data
 data_tri$Sample.Name <- factor(data_tri$Sample.Name, levels = c("H9","AIW001-02", "AIW002-02", "AJC001-5", "AJD002-3", "AJG001-C4","#3448", "#3450" ,"TD02", "TD10", "TD22","NCRM1", "KYOU"))
 data_plu$Sample.Name <- factor(data_plu$Sample.Name, levels = c("H9","AIW001-02", "AIW002-02", "AJC001-5", "AJD002-3", "AJG001-C4","3448", "3450" ,"TD02","TD03", "TD10", "TD22","NCRM1", "KYOU"))
@@ -43,7 +70,8 @@ data_plu <- data_plu[rowSums(is.na(data_plu)) == 0,]
 data_stab <- data_stab[,colSums(is.na(data_stab))<nrow(data_stab)]
 data_stab <- data_stab[rowSums(is.na(data_stab)) == 0,]
 
-
+library(plyr)
+library(gtable)
 library("plotly")
 library("ggplot2")
 library("gridExtra")
@@ -117,16 +145,19 @@ for (val in unique(data_plu[,"Target.Name"])) {
     
     scale_fill_manual(values = colours)+
     theme_classic()+
-    theme(axis.text.x = element_text(angle = 60, hjust = 1))+
+    theme(axis.text.x = element_blank())+
     theme(legend.position = "none", axis.title.x = element_blank()) +
     labs(y = paste(val, " Relative Expression")) +
     scale_y_continuous(expand = expand_scale(mult = c(0, .1)))+
-    geom_hline(yintercept=1, linetype="dashed", color = "black")
+    geom_hline(yintercept=1, linetype="dashed", color = "black")+
+    theme(legend.text=element_text(size=rel(1.2)), legend.key.size= unit(1.2, "cm"))
   
 }
 
 
-grid.arrange(grobs = plots, ncol = 3)
+p <- grid_arrange_shared_legend(plots[[1]],plots[[2]],plots[[3]],plots[[4]], plots[[5]], plots[[6]], nrow = 2, ncol = 3, position = "right")
+
+grid.draw(p)
 
 
 plots <- list()
