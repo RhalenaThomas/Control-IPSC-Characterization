@@ -92,185 +92,62 @@ p2 <- ggplot(data_group2, aes(x=Target.Name, y=Rq.mean, fill=Sample.Name)) +
 grid.arrange(p1, p2, ncol = 1)
 
 
-val = "C-MYC"
-datatemp <- data_plu[data_plu[,"Target.Name"]==val,]
-p1 <- ggplot(datatemp, aes(x=Sample.Name, y=Rq.rel, fill=Sample.Name)) +
-  geom_bar(stat="identity", position=position_dodge()) +
-  geom_errorbar(aes(ymin=Rq.rel-Rq.rel.error, ymax=Rq.rel+Rq.rel.error), width=0.5, position=position_dodge()) +
+
+
+pRel <- ggplot(data_plu, aes(x=Target.Name, y=Rq.rel, fill=Sample.Name)) +
+  theme_classic() +
+  geom_bar(stat="identity", position=position_dodge(width = 0.75), width = 0.6) +
+  geom_errorbar(aes(ymin=Rq.rel-Rq.rel.error, ymax=Rq.rel+Rq.rel.error), width=0.3, position=position_dodge(width = 0.75)) +
   scale_fill_manual(values = colours)+
-  theme_classic()+
-  theme(axis.text.x = element_text(angle = 60, hjust = 1))+
-  theme(legend.position = "none", axis.title.x = element_blank()) +
-  labs(y = paste(val, " Relative Expression")) +
+  labs(x = "Target Name", y = "Relative Expression")+
   scale_y_continuous(expand = expand_scale(mult = c(0, .1)))+
   geom_hline(yintercept=1, linetype="dashed", color = "black")
 
-val = "KLF4"
-datatemp <- data_plu[data_plu[,"Target.Name"]==val,]
-p2 <- ggplot(datatemp, aes(x=Sample.Name, y=Rq.rel, fill=Sample.Name)) +
-  geom_bar(stat="identity", position=position_dodge()) +
-  geom_errorbar(aes(ymin=Rq.rel-Rq.rel.error, ymax=Rq.rel+Rq.rel.error), width=0.5, position=position_dodge()) +
-  scale_fill_manual(values = colours)+
-  theme_classic()+
-  theme(axis.text.x = element_text(angle = 60, hjust = 1))+
-  theme(legend.position = "none", axis.title.x = element_blank()) +
-  labs(y = paste(val, " Relative Expression")) +
-  scale_y_continuous(expand = expand_scale(mult = c(0, .1)))+
-  geom_hline(yintercept=1, linetype="dashed", color = "black")
+pRel
 
-val = "NANOG"
-datatemp <- data_plu[data_plu[,"Target.Name"]==val,]
-p3 <- ggplot(datatemp, aes(x=Sample.Name, y=Rq.rel, fill=Sample.Name)) +
-  geom_bar(stat="identity", position=position_dodge()) +
-  geom_errorbar(aes(ymin=Rq.rel-Rq.rel.error, ymax=Rq.rel+Rq.rel.error), width=0.5, position=position_dodge()) +
-  scale_fill_manual(values = colours)+
-  theme_classic()+
-  theme(axis.text.x = element_text(angle = 60, hjust = 1))+
-  theme(legend.position = "none", axis.title.x = element_blank()) +
-  labs(y = paste(val, " Relative Expression")) +
-  scale_y_continuous(expand = expand_scale(mult = c(0, .1)))+
-  geom_hline(yintercept=1, linetype="dashed", color = "black")
 
-val = "OCT3-4"
-datatemp <- data_plu[data_plu[,"Target.Name"]==val,]
-p4 <- ggplot(datatemp, aes(x=Sample.Name, y=Rq.rel, fill=Sample.Name)) +
-  geom_bar(stat="identity", position=position_dodge()) +
-  geom_errorbar(aes(ymin=Rq.rel-Rq.rel.error, ymax=Rq.rel+Rq.rel.error), width=0.5, position=position_dodge()) +
-  scale_fill_manual(values = colours)+
-  theme_classic()+
-  theme(axis.text.x = element_text(angle = 60, hjust = 1))+
-  theme(legend.position = "none", axis.title.x = element_blank()) +
-  labs(y = paste(val, " Relative Expression")) +
-  scale_y_continuous(expand = expand_scale(mult = c(0, .1)))+
-  geom_hline(yintercept=1, linetype="dashed", color = "black")
 
-val = "SOX2"
-datatemp <- data_plu[data_plu[,"Target.Name"]==val,]
-p5 <- ggplot(datatemp, aes(x=Sample.Name, y=Rq.rel, fill=Sample.Name)) +
-  geom_bar(stat="identity", position=position_dodge()) +
-  geom_errorbar(aes(ymin=Rq.rel-Rq.rel.error, ymax=Rq.rel+Rq.rel.error), width=0.5, position=position_dodge()) +
-  scale_fill_manual(values = colours)+
-  theme_classic()+
-  theme(axis.text.x = element_text(angle = 60, hjust = 1))+
-  theme(legend.position = "none", axis.title.x = element_blank()) +
-  labs(y = paste(val, " Relative Expression")) +
-  scale_y_continuous(expand = expand_scale(mult = c(0, .1)))+
-  geom_hline(yintercept=1, linetype="dashed", color = "black")
+plots <- list()
 
-val = "ZFP42"
-datatemp <- data_plu[data_plu[,"Target.Name"]==val,]
-p6 <- ggplot(datatemp, aes(x=Sample.Name, y=Rq.rel, fill=Sample.Name)) +
-  geom_bar(stat="identity", position=position_dodge()) +
-  geom_errorbar(aes(ymin=Rq.rel-Rq.rel.error, ymax=Rq.rel+Rq.rel.error), width=0.5, position=position_dodge()) +
-  scale_fill_manual(values = colours)+
-  theme_classic()+
-  theme(axis.text.x = element_text(angle = 60, hjust = 1))+
-  theme(legend.position = "none", axis.title.x = element_blank()) +
-  labs(y = paste(val, " Relative Expression")) +
-  scale_y_continuous(expand = expand_scale(mult = c(0, .1)))+
-  geom_hline(yintercept=1, linetype="dashed", color = "black")
+for (val in unique(data_plu[,"Target.Name"])) {
+  datatemp <- data_plu[data_plu[,"Target.Name"]==val,]
+  plots[[val]] <- ggplot(datatemp, aes(x=Sample.Name, y=Rq.rel, fill=Sample.Name)) +
+    geom_bar(stat="identity", position=position_dodge()) +
+    geom_errorbar(aes(ymin=Rq.rel-Rq.rel.error, ymax=Rq.rel+Rq.rel.error), width=0.5, position=position_dodge()) +
+    
+    scale_fill_manual(values = colours)+
+    theme_classic()+
+    theme(axis.text.x = element_text(angle = 60, hjust = 1))+
+    theme(legend.position = "none", axis.title.x = element_blank()) +
+    labs(y = paste(val, " Relative Expression")) +
+    scale_y_continuous(expand = expand_scale(mult = c(0, .1)))+
+    geom_hline(yintercept=1, linetype="dashed", color = "black")
+  
+}
 
-grid.arrange(p1, p2, p3, p4, p5, p6, ncol = 3)
 
-val = "chr1"
-datatemp <- data_stab[data_stab[,"Target.Name"]==val,]
-p1 <- ggplot(datatemp, aes(x=Sample.Name, y=Rq.mean, fill=Sample.Name)) +
-  geom_bar(stat="identity", position=position_dodge()) +
-  geom_errorbar(aes(ymin=Rq.mean-Rq.SEM, ymax=Rq.mean+Rq.SEM), width=0.5, position=position_dodge()) +
-  scale_fill_manual(values = colours)+
-  theme_classic()+
-  theme(axis.text.x = element_text(angle = 60, hjust = 1))+
-  theme(legend.position = "none", axis.title.x = element_blank()) +
-  labs(y = paste(val, " Relative Quantification"))+
-  scale_y_continuous(expand = expand_scale(mult = c(0, .1)))
+grid.arrange(grobs = plots, ncol = 3)
 
-val = "chr8"
-datatemp <- data_stab[data_stab[,"Target.Name"]==val,]
-p2 <- ggplot(datatemp, aes(x=Sample.Name, y=Rq.mean, fill=Sample.Name)) +
-  geom_bar(stat="identity", position=position_dodge()) +
-  geom_errorbar(aes(ymin=Rq.mean-Rq.SEM, ymax=Rq.mean+Rq.SEM), width=0.5, position=position_dodge()) +
-  scale_fill_manual(values = colours)+
-  theme_classic()+
-  theme(axis.text.x = element_text(angle = 60, hjust = 1))+
-  theme(legend.position = "none", axis.title.x = element_blank()) +
-  labs(y = paste(val, " Relative Quantification"))+
-  scale_y_continuous(expand = expand_scale(mult = c(0, .1)))
 
-val = "chr10"
-datatemp <- data_stab[data_stab[,"Target.Name"]==val,]
-p3 <- ggplot(datatemp, aes(x=Sample.Name, y=Rq.mean, fill=Sample.Name)) +
-  geom_bar(stat="identity", position=position_dodge()) +
-  geom_errorbar(aes(ymin=Rq.mean-Rq.SEM, ymax=Rq.mean+Rq.SEM), width=0.5, position=position_dodge()) +
-  scale_fill_manual(values = colours)+
-  theme_classic()+
-  theme(axis.text.x = element_text(angle = 60, hjust = 1))+
-  theme(legend.position = "none", axis.title.x = element_blank()) +
-  labs(y = paste(val, " Relative Quantification"))+
-  scale_y_continuous(expand = expand_scale(mult = c(0, .1)))
+plots <- list()
 
-val = "chr12"
-datatemp <- data_stab[data_stab[,"Target.Name"]==val,]
-p4 <- ggplot(datatemp, aes(x=Sample.Name, y=Rq.mean, fill=Sample.Name)) +
-  geom_bar(stat="identity", position=position_dodge()) +
-  geom_errorbar(aes(ymin=Rq.mean-Rq.SEM, ymax=Rq.mean+Rq.SEM), width=0.5, position=position_dodge()) +
-  scale_fill_manual(values = colours)+
-  theme_classic()+
-  theme(axis.text.x = element_text(angle = 60, hjust = 1))+
-  theme(legend.position = "none", axis.title.x = element_blank()) +
-  labs(y = paste(val, " Relative Quantification"))+
-  scale_y_continuous(expand = expand_scale(mult = c(0, .1)))
+for (val in unique(data_stab[,"Target.Name"])) {
+  
+  datatemp <- data_stab[data_stab[,"Target.Name"]==val,]
+  
+  
+  plots[[val]] <- ggplot(datatemp, aes(x=Sample.Name, y=Rq.mean, fill=Sample.Name)) +
+    geom_bar(stat="identity", position=position_dodge()) +
+    geom_errorbar(aes(ymin=Rq.mean-Rq.SEM, ymax=Rq.mean+Rq.SEM), width=0.5, position=position_dodge()) +
+    
+    scale_fill_manual(values = colours)+
+    theme_classic()+
+    theme(axis.text.x = element_text(angle = 60, hjust = 1))+
+    theme(legend.position = "none", axis.title.x = element_blank()) +
+    labs(y = paste(val, " Relative Quantification"))+
+    scale_y_continuous(expand = expand_scale(mult = c(0, .1)))+
+    geom_hline(yintercept=2, linetype="dashed", color = "black")
+}
 
-val = "chr17"
-datatemp <- data_stab[data_stab[,"Target.Name"]==val,]
-p5 <- ggplot(datatemp, aes(x=Sample.Name, y=Rq.mean, fill=Sample.Name)) +
-  geom_bar(stat="identity", position=position_dodge()) +
-  geom_errorbar(aes(ymin=Rq.mean-Rq.SEM, ymax=Rq.mean+Rq.SEM), width=0.5, position=position_dodge()) +
-  scale_fill_manual(values = colours)+
-  theme_classic()+
-  theme(axis.text.x = element_text(angle = 60, hjust = 1))+
-  theme(legend.position = "none", axis.title.x = element_blank()) +
-  labs(y = paste(val, " Relative Quantification"))+
-  scale_y_continuous(expand = expand_scale(mult = c(0, .1)))
 
-val = "chr18"
-datatemp <- data_stab[data_stab[,"Target.Name"]==val,]
-p6 <- ggplot(datatemp, aes(x=Sample.Name, y=Rq.mean, fill=Sample.Name)) +
-  geom_bar(stat="identity", position=position_dodge()) +
-  geom_errorbar(aes(ymin=Rq.mean-Rq.SEM, ymax=Rq.mean+Rq.SEM), width=0.5, position=position_dodge()) +
-  scale_fill_manual(values = colours)+
-  theme_classic()+
-  theme(axis.text.x = element_text(angle = 60, hjust = 1))+
-  theme(legend.position = "none", axis.title.x = element_blank()) +
-  labs(y = paste(val, " Relative Quantification"))+
-  scale_y_continuous(expand = expand_scale(mult = c(0, .1)))
-
-val = "chr20"
-datatemp <- data_stab[data_stab[,"Target.Name"]==val,]
-p7 <- ggplot(datatemp, aes(x=Sample.Name, y=Rq.mean, fill=Sample.Name)) +
-  geom_bar(stat="identity", position=position_dodge()) +
-  geom_errorbar(aes(ymin=Rq.mean-Rq.SEM, ymax=Rq.mean+Rq.SEM), width=0.5, position=position_dodge()) +
-  scale_fill_manual(values = colours)+
-  theme_classic()+
-  theme(axis.text.x = element_text(angle = 60, hjust = 1))+
-  theme(legend.position = "none", axis.title.x = element_blank()) +
-  labs(y = paste(val, " Relative Quantification"))+
-  scale_y_continuous(expand = expand_scale(mult = c(0, .1)))
-
-val = "chrX"
-datatemp <- data_stab[data_stab[,"Target.Name"]==val,]
-p8 <- ggplot(datatemp, aes(x=Sample.Name, y=Rq.mean, fill=Sample.Name)) +
-  geom_bar(stat="identity", position=position_dodge()) +
-  geom_errorbar(aes(ymin=Rq.mean-Rq.SEM, ymax=Rq.mean+Rq.SEM), width=0.5, position=position_dodge()) +
-  scale_fill_manual(values = colours)+
-  theme_classic()+
-  theme(axis.text.x = element_text(angle = 60, hjust = 1))+
-  theme(legend.position = "none", axis.title.x = element_blank()) +
-  labs(y = paste(val, " Relative Quantification")) +
-  scale_y_continuous(expand = expand_scale(mult = c(0, .1)))
-
-grid.arrange(p1, p2, p3, p4, p5, p6, p7, p8, ncol = 4)
-
-#library(plotly)
-#plot_ly(data_tri, x = ~Target.Name, y = ~Rq.rel, color = ~Sample.Name, colors = colours, type = 'bar')
-#plot_ly(data_plu, x = ~Target.Name, y = ~Rq.rel, color = ~Sample.Name, colors = colours, type = 'bar')
-#plot_ly(data_stab, x = ~Target.Name, y = ~Rq.mean, color = ~Sample.Name, colors = colours, type = 'bar')
+grid.arrange(grobs = plots, ncol = 4)
