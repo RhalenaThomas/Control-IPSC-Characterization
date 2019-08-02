@@ -60,6 +60,7 @@ library(ggExtra)
 library(cowplot)
 library(plyr)
 library(gtable)
+library(gridExtra)
 
 # loop to make a 3D graph for each 'independent' 
 
@@ -81,6 +82,16 @@ times = c("4 Weeks", "NPC")
 for (j in seq_along(listdfs)) { # loop over sequence
   
   dataframe <- as.data.frame(listdfs[j])
+  
+  dataframe$Well <- paste(dataframe$Row, dataframe$Column, dataframe$Directory, dataframe$Time) 
+  
+  mean2 = function(x) {
+    if (is.numeric(x[1]))
+      return(mean(x))
+    return(x[1])
+  }
+  
+  dataframe <- aggregate(dataframe, by = list(dataframe$Well), mean2)
   
   dataframe$Lines <- as.factor(dataframe$Column)
   
