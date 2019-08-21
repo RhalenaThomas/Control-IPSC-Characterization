@@ -147,7 +147,7 @@ for (val in c("OCT/DAPI", "SSEA4/DAPI")) {
     labs(y = paste(val)) +
     scale_y_continuous(expand = expand_scale(mult = c(0, .1)))+
     geom_hline(yintercept=1, linetype="dashed", color = "black")+
-    theme(legend.text=element_text(size=rel(1.2)), legend.key.size= unit(1.2, "cm"))
+    theme(legend.text=element_text(size=rel(0.7)), legend.key.size= unit(0.7, "cm"))
   #print(plots[[val]])
 }
 
