@@ -1,4 +1,4 @@
-data_nu <- read.csv("C:/Users/eddie/Desktop/data2.csv")
+data_nu <- read.csv("C:/Users/eddie/Desktop/actin_only.csv")
 
 
 colours = c(
@@ -48,6 +48,7 @@ library(gtable)
 library("ggplot2")
 library("gridExtra")
 library(grid)
+library(dplyr)
 
 
 samplemap = c("3448-E8" = "E8",
@@ -56,11 +57,11 @@ samplemap = c("3448-E8" = "E8",
             "3450-MT" = "mTeSR",
             "AIW001-02-E8"= "E8",
             "AIW001-02-MT" = "mTeSR",
-            "aiw002-02-e8"= "E8",
-            "aiw002-02-MT" = "mTeSR",
+            "AIW002-02-e8"= "E8",
+            "AIW002-02-MT" = "mTeSR",
             "AJC001-5-E8"= "E8",
             "AJC001-5-MT" = "mTeSR",
-            "AJD002-3-E8"= "E8",
+            "AJD002-3E8"= "E8",
             "AJD002-3-MT" = "mTeSR",
             "AJG001-C4-E8"= "E8",
             "AJG001-C4-MT" = "mTeSR",
@@ -81,11 +82,11 @@ samples = c("3448-E8" = "3448",
               "3450-MT" = "3450",
               "AIW001-02-E8"= "AIW001-02",
               "AIW001-02-MT" = "AIW001-02",
-              "aiw002-02-e8"= "AIW002-02",
-              "aiw002-02-MT" = "AIW002-02",
+              "AIW002-02-e8"= "AIW002-02",
+              "AIW002-02-MT" = "AIW002-02",
               "AJC001-5-E8"= "AJC001-5",
               "AJC001-5-MT" = "AJC001-5",
-              "AJD002-3-E8"= "AJD002-3",
+              "AJD002-3E8"= "AJD002-3",
               "AJD002-3-MT" = "AJD002-3",
               "AJG001-C4-E8"= "AJG001-C4",
               "AJG001-C4-MT" = "AJG001-C4",
@@ -100,22 +101,7 @@ samples = c("3448-E8" = "3448",
               "TD10-E8"= "TD10",
               "TD10-MT" = "TD10")
 
-targets = c("OCT3/4",
-            "NANOG",
-            "NCAM",
-            "MIXL1",
-            "VIMENTIN",
-            "NES",
-            "PAX6",
-            "SOX1",
-            "FOXG1",
-            "SLC1A3",
-            "OLIG2",
-            "SOX9",
-            "TUB3",
-            "MAP2")
 
-data_nu$Target.Name <- factor(data_nu$Target.Name, levels = targets)
 data_nu$Media <- revalue(data_nu$Sample.Name, samplemap)
 data_nu$Sample.Name <- revalue(data_nu$Sample.Name, samples)
 
@@ -127,24 +113,47 @@ data_nu <- data_nu[rowSums(is.na(data_nu)) == 0,]
 
 
 
-setwd("C:/Users/eddie/Desktop/plots")
+setwd("C:/Users/eddie/Desktop/plots2")
 
-for (target in targets){
+for (target in unique(data_nu[,"Target.Name"])){
   
   data_temp <- data_nu[data_nu[,"Target.Name"]==target,]
   
+  data_temp <- data_temp %>% group_by(Sample.Name) %>% summarise(Rq.mean = mean(Rq.mean), Rq.SEM = mean(Rq.SEM))
   
   p <- ggplot(data_temp, aes(x=Sample.Name, y=Rq.mean, fill=Sample.Name)) +
     theme_classic() +
-    geom_bar(stat="identity", position=position_dodge(width = 0.75), width = 0.75, color = 'black') +
     geom_errorbar(aes(ymin=Rq.mean-Rq.SEM, ymax=Rq.mean+Rq.SEM), width=0.3, position=position_dodge(width = 0.75)) +
+    geom_bar(stat="identity", position=position_dodge(width = 0.75), width = 0.75, color = 'black') +
+    scale_fill_manual(values = colours)+
+    labs(x = "Target Name", y = paste(target, " Relative Expression"))+
+    #coord_cartesian(ylim = c(0, 0.1)) +
+    scale_y_continuous(expand = expand_scale(mult = c(0, .1))) 
+  
+  png(paste('plot_', gsub("/", "-", target), '.png', sep = ""), width = 1000, height = 600)
+  #svg(paste('plot_', gsub("/", "-", target), '.svg', sep = ""), width = 1000, height = 600)
+  print(p)
+
+  dev.off()
+}
+
+for (target in unique(data_nu[,"Target.Name"])){
+  
+  data_temp <- data_nu[data_nu[,"Target.Name"]==target,]
+  
+
+  
+  p <- ggplot(data_temp, aes(x=Sample.Name, y=Rq.mean, fill=Media)) +
+    theme_classic() +
+    geom_errorbar(aes(ymin=Rq.mean-Rq.SEM, ymax=Rq.mean+Rq.SEM), width=0.3, position=position_dodge(width = 0.75)) +
+    geom_bar(stat="identity", position=position_dodge(width = 0.75), width = 0.75, color = 'black') +
     scale_fill_manual(values = colours)+
     labs(x = "Target Name", y = paste(target, " Relative Expression"))+
     scale_y_continuous(expand = expand_scale(mult = c(0, .1)))
   
-  png(paste('plot_', gsub("/", "-", target), '.png', sep = ""), width = 1000, height = 600)
+  png(paste('media_plot_', gsub("/", "-", target), '.png', sep = ""), width = 1000, height = 600)
   print(p)
-
+  
   dev.off()
 }
 

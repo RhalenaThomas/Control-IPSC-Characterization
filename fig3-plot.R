@@ -41,9 +41,11 @@ grid_arrange_shared_legend <- function(..., nrow = 1, ncol = length(list(...)), 
   
 }
 
-data_stab$Sample.Name <- factor(data_stab$Sample.Name, levels = c("Control", "NCRM1", "KYOU", "#3448", "#3450", "AJD002-3", "TD22", "AIW002-02", "AJC001-5", "AJG001-C4", "TD02", "TD10"))
+data_stab$Sample.Name <- factor(data_stab$Sample.Name, levels =c("Control", "NCRM1", "KYOU", "AIW002-02", "AJC001-5", "AJG001-C4", "TD02", "TD03", "#3448", "#3450", "AJD002-3", "TD10",  "TD22"))
 
 
+
+unique(data_stab$Sample.Name)
 
 data_stab <- data_stab[,colSums(is.na(data_stab))<nrow(data_stab)]
 data_stab <- data_stab[rowSums(is.na(data_stab)) == 0,]
@@ -65,14 +67,15 @@ library(grid)
 
 data_group1 <- data_stab
 
-data_group1$Sample.Name <-  factor(data_group1$Sample.Name, levels =c("Control","NCRM1", "KYOU", "#3448", "#3450", "AJD002-3", "TD22"))
+data_group1$Sample.Name <-  factor(data_group1$Sample.Name, levels =c("Control", "NCRM1", "KYOU", "AIW002-02", "AJC001-5", "AJG001-C4", "TD02"))
+
 
 data_group1 <- data_group1[,colSums(is.na(data_group1))<nrow(data_group1)]
 data_group1 <- data_group1[rowSums(is.na(data_group1)) == 0,]
 
 data_group2 <- data_stab
 
-data_group2$Sample.Name <-  factor(data_group2$Sample.Name, levels =c("Control", "AIW002-02", "AJC001-5", "AJG001-C4", "TD02", "TD10"))
+data_group2$Sample.Name <-  factor(data_group2$Sample.Name, levels =c("Control", "TD03", "#3448", "#3450", "AJD002-3","TD10","TD22"))
 
 data_group2 <- data_group2[,colSums(is.na(data_group2))<nrow(data_group2)]
 data_group2 <- data_group2[rowSums(is.na(data_group2)) == 0,]
