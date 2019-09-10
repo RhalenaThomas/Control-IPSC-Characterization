@@ -64,7 +64,7 @@ grid_arrange_shared_legend <- function(..., nrow = 1, ncol = length(list(...)), 
 
 data_plu$Sample.Name <- factor(data_plu$Sample.Name, levels = c("H9", "NCRM1", "KYOU", "AIW002-02", "AJC001-5", "AJG001-C5", "TD02", "TD03", "3448", "3450", "AJD002-3","TD10",  "TD22"))
 
-data_plu$Media <- revalue(data_plu$Sample.Name, c("H9"="mTeSR", "NCRM1"="mTeSR", "KYOU"="mTeSR", "3448"="E8", "3450"="E8", "AJD002-3"="E8", "TD22"="E8", "AIW002-02"="mTeSR", "AJC001-5"="mTeSR", "AJG001-C5"="mTeSR", "TD02"="mTeSR", "TD03" = "mTeSR", "TD10"="E8"))
+data_plu$Media <- revalue(data_plu$Sample.Name, c("H9"="mTeSR", "NCRM1"="mTeSR", "KYOU"="mTeSR", "3448"="E8", "3450"="E8", "AJD002-3"="E8", "TD22"="E8", "AIW002-02"="mTeSR", "AJC001-5"="mTeSR", "AJG001-C5"="mTeSR", "TD02"="mTeSR", "TD03" = "E8", "TD10"="E8"))
 
 
 data_plu <- data_plu[,colSums(is.na(data_plu))<nrow(data_plu)]
@@ -81,8 +81,8 @@ for (val in c("OCT3-4", "NANOG", "SOX2", "C-MYC", "KLF4", "ZFP42")) {
   datatemp <- data_plu[data_plu[,"Target.Name"]==val,]
   
   plots[[val]] <- ggplot(datatemp, aes(x=Sample.Name, y=Rq.rel, fill=Sample.Name)) +
-    geom_bar(stat="identity", position=position_dodge(), width = 1, color = 'black', size = 1) +
     geom_errorbar(aes(ymin=Rq.rel-Rq.rel.error, ymax=Rq.rel+Rq.rel.error), width=0.5, position=position_dodge(), size = 1) +
+    geom_bar(stat="identity", position=position_dodge(), width = 1, color = 'black', size = 1) +
     scale_fill_manual(values = colours)+
     theme_classic()+
     theme(axis.text.x = element_blank())+
@@ -90,7 +90,7 @@ for (val in c("OCT3-4", "NANOG", "SOX2", "C-MYC", "KLF4", "ZFP42")) {
     labs(y = paste(val, " Relative Expression")) +
     scale_y_continuous(expand = expand_scale(mult = c(0, .1)))+
     geom_hline(yintercept=1, linetype="dashed", color = "black")+
-    theme(legend.text=element_text(size=rel(1.2)), legend.key.size= unit(1.2, "cm"))+
+    theme(legend.text=element_text(size=rel(0.8)), legend.key.size= unit(0.8, "cm"))+
     facet_grid(~Media ,drop = TRUE, scales = "free_x",  space = "free_x")
   #print(plots[[val]])
 }
@@ -104,7 +104,9 @@ print(grid.draw(p))
 
 data_abs$Time <- as.factor(data_abs$Time)
 
-data_abs$Sample <- factor(data_abs$Sample, levels = c("AIW002-02", "AJC001-5", "AJG001-C4", "TD02", "TD03", "3448", "3450", "AJD002-3","TD10", "TD22"))
+data_abs$Sample <- factor(data_abs$Sample, levels = c("NCRM1", "KYOU", "AIW002-02", "AJC001-5", "AJG001-C4", "TD02", "3448", "3450", "AJD002-3","TD03","TD10", "TD22"))
+
+data_abs$Media <- factor(data_abs$Media, levels = c("mTeSR","E8"))
 
 
 data_abs <- data_abs[,colSums(is.na(data_abs))<nrow(data_abs)]
@@ -126,7 +128,7 @@ p <- ggplot(data_abs, aes(x=Media, y=Abs, fill=Time)) +
 
 print(p)
 
-data_if$name <- factor(data_if$name, levels = c("H9", "NCRM1", "KYOU", "AIW002-02", "AJC001-5", "AJG001-C5", "TD02", "TD03","3448", "3450", "AJD002-3","TD10", "TD22"))
+data_if$name <- factor(data_if$name, levels = c("H9", "NCRM1", "KYOU", "AIW002-02", "AJC001-5", "AJG001-C4", "TD02", "3448", "3450", "AJD002-3","TD03","TD10", "TD22"))
 
 data_if <- data_if[,colSums(is.na(data_if))<nrow(data_if)]
 data_if <- data_if[rowSums(is.na(data_if)) == 0,]
@@ -140,7 +142,7 @@ for (val in c("OCT/DAPI", "SSEA4/DAPI")) {
   plots2[[val]] <- ggplot(datatemp, aes(x=name, y=mean, fill=name)) +
     geom_bar(stat="identity", color = 'black') +
     geom_errorbar(aes(ymin=mean-sd, ymax=mean+sd), width=0.75) +
-    scale_fill_manual(values = colours2)+
+    scale_fill_manual(values = colours)+
     theme_classic()+
     theme(axis.text.x = element_blank())+
     theme(legend.position = "none", axis.title.x = element_blank()) +
