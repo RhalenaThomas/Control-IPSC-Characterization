@@ -10,17 +10,9 @@
   
   colours = c(
     "#b1457b",
-    "#54b06c",
-    "#6d71d8",
-    "#c1a339",
     "#5c3788",
-    "#799e43",
-    "#ca73c6",
-    "#43c29e",
     "#b8434e",
-    "#36dee6",
-    "#b86738",
-    "#6a89d5")
+    "#36dee6")
   
   data_CNPC$Column<- factor(data_CNPC$Column)
   
@@ -37,11 +29,11 @@
   
   data_CNPC$Line <- revalue(data_CNPC$Column, c("1" = "AJC001-5", "2" = "AJD002-3", "3" = "AJG001-C4", "4" = "AIW001-02", "5" = "AIW002-02", "6" = "NCRM1", "7" = "KYOU", "8" = "TD02", "9" = "TD03", "10" = "TD10", "11" = "3448", "12" = "3450"))
   #data_CNPC$Line <- factor(data_CNPC$Line, levels = c("NCRM1", "KYOU", "AIW002-02", "AJC001-5", "AJG001-C4", "TD02",  "3448", "3450", "AJD002-3","TD03","TD10",  "TD22"))
-  data_CNPC$Line <- factor(data_CNPC$Line, levels = c("NCRM1", "KYOU", "AJC001-5", "AJG001-C4", "AJD002-3", "TD03"))
+  data_CNPC$Line <- factor(data_CNPC$Line, levels = c("NCRM1", "AJG001-C4", "AJD002-3", "TD03"))
   
   
   data_CNPC <- data_CNPC[,colSums(is.na(data_CNPC))<nrow(data_CNPC)]
-  data_CNPC <- data_CNPC[rowSums(is.na(data_CNPC)) == 0,]
+  data_CNPC <- data_CNPC[!is.na(data_CNPC$Line),]
   
   data_CNPC$MediaGrown <- revalue(data_CNPC$Line, c("NCRM1"="mTeSR1", "KYOU"="mTeSR1", "3448"="E8", "3450"="E8", "AJD002-3"="E8", "TD22"="E8", "AIW002-02"="mTeSR1", "AJC001-5"="mTeSR1", "AJG001-C4"="mTeSR1", "TD02"="mTeSR1", "TD03" = "E8", "TD10"="E8"))
   
