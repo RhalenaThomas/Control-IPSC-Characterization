@@ -22,11 +22,10 @@
   data_CNPC$Ch3.positive_per_nuclei = data_CNPC$Ch3.positive / data_CNPC$Dapi.positive
   
   data_CNPC$Ch1.positive_per_map = data_CNPC$Ch1.positive / data_CNPC$Ch1.positive
-  data_CNPC$Ch2.positive_per_map = data_CNPC$Ch2.positive / data_CNPC$Ch1.positive
-  data_CNPC$Ch3.positive_per_map = data_CNPC$Ch3.positive / data_CNPC$Ch1.positive
+  data_CNPC$Ch2.positive_per_map = data_CNPC$Ch1.Ch2.positive / data_CNPC$Ch1.positive
+  data_CNPC$Ch3.positive_per_map = data_CNPC$Ch1.Ch3.positive / data_CNPC$Ch1.positive
   
-  
-  
+
   data_CNPC$Line <- revalue(data_CNPC$Column, c("1" = "AJC001-5", "2" = "AJD002-3", "3" = "AJG001-C4", "4" = "AIW001-02", "5" = "AIW002-02", "6" = "NCRM1", "7" = "KYOU", "8" = "TD02", "9" = "TD03", "10" = "TD10", "11" = "3448", "12" = "3450"))
   #data_CNPC$Line <- factor(data_CNPC$Line, levels = c("NCRM1", "KYOU", "AIW002-02", "AJC001-5", "AJG001-C4", "TD02",  "3448", "3450", "AJD002-3","TD03","TD10",  "TD22"))
   data_CNPC$Line <- factor(data_CNPC$Line, levels = c("NCRM1", "AJG001-C4", "AJD002-3", "TD03"))
@@ -50,7 +49,7 @@
   data_map2 <- data_map2[data_map2$too.big...250. <425,]
   data_map2 <- data_map2[data_map2$Ch1.positive_per_nuclei > 0.01,]
   
-  p <- ggplot(data_map2, aes(y = Ch1.positive_per_nuclei, x = Line, fill = Line)) +
+  p1 <- ggplot(data_map2, aes(y = Ch1.positive_per_nuclei, x = Line, fill = Line)) +
         geom_boxplot()+
         scale_fill_manual(values = colours)+
         scale_y_continuous(expand = expand_scale(mult = c(0, .1)))+
@@ -62,8 +61,6 @@
         facet_grid(~Media ,drop = TRUE, scales = "free_x",  space = "free_x", switch = "x")
     
   
-  p
-  
   
   data_nes <- data_CNPC[data_CNPC[,"Ch2"]=="nestin",]
   
@@ -74,19 +71,17 @@
   data_nes <- data_nes[data_nes$too.big...250. <425,]
   data_nes <- data_nes[data_nes$Ch2.positive_per_nuclei > 0.01,]
   
-  p <- ggplot(data_nes, aes(y = Ch2.positive_per_nuclei, x = Line, fill = Line)) +
+  p2 <- ggplot(data_nes, aes(y = Ch2.positive_per_nuclei, x = Line, fill = Line)) +
     geom_boxplot()+
     scale_fill_manual(values = colours)+
     scale_y_continuous(expand = expand_scale(mult = c(0, .1)))+
-    scale_y_continuous(labels = function(x) x*100) +
+    scale_y_continuous(labels = function(x) x*100, limits = c(0, 1)) +
     theme_classic() +
     ylab("% Nestin Positive") +
     xlab(element_blank())+
     theme(axis.text.x = element_blank())+
     facet_grid(~Media ,drop = TRUE, scales = "free_x",  space = "free_x", switch = "x")
   
-  
-  p
   
   p <- ggplot(data_nes, aes(y = Ch2.positive_per_nuclei, x = too.big...250., color = Line)) +
     geom_point()+
@@ -98,20 +93,20 @@
   #CD44
   
   
-  data_sox <- data_CNPC[data_CNPC[,"Ch2"]=="nestinki67",]
+  data_ki67 <- data_CNPC[data_CNPC[,"Ch2"]=="nestinki67",]
   
   
-  data_sox <- data_sox[data_sox$Dapi.positive > 50,]
+  data_ki67 <- data_ki67[data_ki67$Dapi.positive > 50,]
   
-  data_sox <- data_sox[data_sox$Ch2.positive_per_map < 0.99,]
-  data_sox <- data_sox[data_sox$too.big...250. <425,]
-  data_sox <- data_sox[data_sox$Ch2.positive_per_map > 0.01,]
+  data_ki67 <- data_ki67[data_ki67$Ch2.positive_per_nuclei < 0.99,]
+  data_ki67 <- data_ki67[data_ki67$too.big...250. <425,]
+  data_ki67 <- data_ki67[data_ki67$Ch2.positive_per_nuclei > 0.01,]
   
-  p <- ggplot(data_sox, aes(y = Ch2.positive_per_map, x = Line, fill = Line)) +
+  p3 <- ggplot(data_ki67, aes(y = Ch2.positive_per_nuclei, x = Line, fill = Line)) +
     geom_boxplot()+
     scale_fill_manual(values = colours)+
     scale_y_continuous(expand = expand_scale(mult = c(0, .1)))+
-    scale_y_continuous(labels = function(x) x*100) +
+    scale_y_continuous(labels = function(x) x*100, limits = c(0, 1)) +
     theme_classic() +
     ylab("% ki67 Positive") +
     xlab(element_blank())+
@@ -119,22 +114,20 @@
     facet_grid(~Media ,drop = TRUE, scales = "free_x",  space = "free_x", switch = "x")
   
   
-  p
-  
-  data_cd44 <- data_CNPC[data_CNPC[,"Ch3"]=="SOX1",]
+  data_sox1 <- data_CNPC[data_CNPC[,"Ch3"]=="SOX1",]
   
   
-  data_cd44 <- data_cd44[data_cd44$Dapi.positive > 50,]
+  data_sox1 <- data_sox1[data_sox1$Dapi.positive > 50,]
   
-  data_cd44 <- data_cd44[data_cd44$Ch3.positive_per_map < 0.99,]
-  data_cd44 <- data_cd44[data_cd44$too.big...250. <425,]
-  data_cd44 <- data_cd44[data_cd44$Ch3.positive_per_map > 0.01,]
+  data_sox1 <- data_sox1[data_sox1$Ch3.positive_per_map < 0.99,]
+  data_sox1 <- data_sox1[data_sox1$too.big...250. <425,]
+  data_sox1 <- data_sox1[data_sox1$Ch3.positive_per_map > 0.01,]
   
-  p <- ggplot(data_cd44, aes(y = Ch3.positive_per_map, x = Line, fill = Line)) +
+  p4 <- ggplot(data_sox1, aes(y = Ch3.positive_per_map, x = Line, fill = Line)) +
     geom_boxplot()+
     scale_fill_manual(values = colours)+
     scale_y_continuous(expand = expand_scale(mult = c(0, .1)))+
-    scale_y_continuous(labels = function(x) x*100) +
+    scale_y_continuous(labels = function(x) x*100, limits = c(0, 1)) +
     theme_classic() +
     ylab("% Sox1 Positive") +
     xlab(element_blank())+
@@ -142,8 +135,11 @@
     facet_grid(~Media ,drop = TRUE, scales = "free_x",  space = "free_x", switch = "x")
   
   
-  p
   
+  
+  p <- grid.arrange(p1,p2,p3,p4)
+  
+  p
   
   #4weeks
   #%MAP2 positive
